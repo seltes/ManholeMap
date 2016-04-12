@@ -1,7 +1,6 @@
 import java.util.ArrayList;
 import java.util.List;
 
-import org.opencv.core.Core;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfPoint;
@@ -26,15 +25,12 @@ public class DetectManhole {
     //Mode : 0:Edge 1:Ellipse 2 Full
     //img : モノクロ   origin : カラー
     public DetectManhole(Mat inputImg,int mode){
-		System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
-    	
-    	Imgproc.cvtColor(inputImg,this.img, Imgproc.COLOR_BGR2GRAY);
+    	Imgproc.cvtColor(inputImg,this.img, Imgproc.COLOR_RGB2GRAY);
     	this.origin = inputImg;
     	this.mode = mode;
     }
     
     public DetectManhole(Mat inputImg, Mat origin,int mode) {
-		System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
         this.img = inputImg;
         this.origin = origin;
         this.mode = mode;
