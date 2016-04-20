@@ -25,9 +25,11 @@ public class DetectManhole {
     //Mode : 0:Edge 1:Ellipse 2 Full
     //img : モノクロ   origin : カラー
     public DetectManhole(Mat inputImg,int mode){
-    	Imgproc.cvtColor(inputImg,this.img, Imgproc.COLOR_RGB2GRAY);
+    	this.img = inputImg;
+    	Imgproc.cvtColor(this.img,this.img,Imgproc.COLOR_BGR2GRAY);
     	this.origin = inputImg;
     	this.mode = mode;
+    	Detection();
     }
     
     public DetectManhole(Mat inputImg, Mat origin,int mode) {
