@@ -26,7 +26,7 @@ public class DetectManhole {
     //img : モノクロ   origin : カラー
     public DetectManhole(Mat inputImg,int mode){
     	this.img = inputImg;
-    	Imgproc.cvtColor(this.img,this.img,Imgproc.COLOR_BGR2GRAY);
+//    	Imgproc.cvtColor(this.img,this.img,Imgproc.COLOR_BGR2GRAY);
     	this.origin = inputImg;
     	this.mode = mode;
     	Detection();
@@ -40,9 +40,10 @@ public class DetectManhole {
     }
 
 	private void Detection() {
+		Imgproc.GaussianBlur(img, img, new Size(13,13), 1);
         if(mode >0) {
 //      Cannyフィルタ
-            Imgproc.Canny(img, img, 10, 60);
+            Imgproc.Canny(img, img, 5, 60);
 //      クロージング処理
 //            Imgproc.morphologyEx(img, origin, MORPH_CLOSE, filterMat,point, rep);
             Imgproc.dilate(img,img,filterMat,point,rep);

@@ -22,18 +22,22 @@ import org.opencv.imgproc.Imgproc;
 
 import net.miginfocom.swing.MigLayout;
 
-public class MainActivity extends JFrame{
+public class MainActivity extends JFrame {
 
 	private JPanel mainPane;
 	private JLabel imgLab;
 	private ImageIcon img;
+	private String originPath = "origin.png";
+	private String resultPath = "result.png";
 	private Mat matImg;
-	private String resultPath = "result.jpg";
+	private Mat grayImg;
 	private DetectManhole detectManhole;
-	private Size imgSize = new Size();
-	private Size setSize = new Size(800,500);
+	private Size setSize = new Size(800.0, 500.0);
 	private JPanel panel;
-	private JButton btnNewButton;
+	private JButton edgeBtn;
+	private JButton ellipseBtn;
+	private JButton manholeBtn;
+	private JButton btnOrigin;
 
 	/**
 	 * Launch the application.
@@ -58,49 +62,116 @@ public class MainActivity extends JFrame{
 	public MainActivity() {
 		setPreferredSize(new Dimension(1000, 700));
 		setSize(new Dimension(921, 522));
-		
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 840, 460);
+		img = new ImageIcon();
+		initialize_Display();
+
+	}
+
+	private void SelectImg() {
+		JFileChooser fileChooser = new JFileChooser();
+		fileChooser.setFileFilter(new FileNameExtensionFilter("画像ファイル", "png", "jpg", "bmp", "Jpeg", "GIF"));
+		if (fileChooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
+			File file = fileChooser.getSelectedFile();
+			matImg = Imgcodecs.imread(file.getPath());
+			grayImg = new Mat();
+			Imgproc.cvtColor(matImg, grayImg, Imgproc.COLOR_BGR2GRAY);
+			outputImg(-1);
+		}
+	}
+	private void outputImg(int mode) {
+		if (mode >= 0) {
+			detectManhole = new DetectManhole(grayImg, mode);
+			Imgcodecs.imwrite(resultPath, detectManhole.origin);
+			img = new ImageIcon(resultPath);
+		}else {
+			Imgcodecs.imwrite(originPath, matImg);
+			img = new ImageIcon(originPath);
+		}
+		if (img == null) {
+			System.out.println("Can't Load Image!!");
+		}
+	}
+
+	private void initialize_Display() {
 		mainPane = new JPanel();
 		mainPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		mainPane.setLayout(new BorderLayout(0, 0));
 		setContentPane(mainPane);
 		imgLab = new JLabel("");
-		imgLab.setSize(new Dimension(1000, 600));
+		imgLab.setSize(new Dimension((int) setSize.width, (int) setSize.height));
 		mainPane.add(imgLab, BorderLayout.CENTER);
-		
+
 		panel = new JPanel();
 		mainPane.add(panel, BorderLayout.EAST);
-		
-		btnNewButton = new JButton("New button");
+		panel.setLayout(new MigLayout("", "[97px]", "[53px][44px][][][][][][][][][]"));
 		JButton setImgBtn = new JButton("Load Picture");
-		setImgBtn.setMinimumSize(new Dimension(91, 21));
-		setImgBtn.setMaximumSize(new Dimension(91, 21));
+		setImgBtn.setPreferredSize(new Dimension(100, 40));
+		setImgBtn.setMinimumSize(new Dimension(100, 40));
+		setImgBtn.setMaximumSize(new Dimension(100, 40));
+		panel.add(setImgBtn, "cell 0 3,grow");
+		
+		btnOrigin = new JButton("Origin");
+		btnOrigin.setMinimumSize(new Dimension(100, 40));
+		btnOrigin.setMaximumSize(new Dimension(100, 40));
+		panel.add(btnOrigin, "cell 0 7");
+
+		edgeBtn = new JButton("Edge");
+		edgeBtn.setMinimumSize(new Dimension(100, 40));
+		edgeBtn.setMaximumSize(new Dimension(100, 40));
+		edgeBtn.setPreferredSize(new Dimension(100, 40));
+		panel.add(edgeBtn, "cell 0 8,grow");
+
+		ellipseBtn = new JButton("Ellipse");
+		ellipseBtn.setPreferredSize(new Dimension(100, 40));
+		ellipseBtn.setMinimumSize(new Dimension(100, 40));
+		ellipseBtn.setMaximumSize(new Dimension(100, 40));
+		panel.add(ellipseBtn, "cell 0 9");
+
+		manholeBtn = new JButton("Manhole");
+		manholeBtn.setPreferredSize(new Dimension(100, 40));
+		manholeBtn.setMinimumSize(new Dimension(100, 40));
+		manholeBtn.setMaximumSize(new Dimension(100, 40));
+		panel.add(manholeBtn, "cell 0 10");
+
 		setImgBtn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				img = null;
+				imgLab.removeAll();;
 				SelectImg();
+				imgLab.setIcon(img);
 			}
 		});
-		panel.setLayout(new MigLayout("", "[97px]", "[53px][44px]"));
-		panel.add(btnNewButton, "cell 0 1,grow");
-		panel.add(setImgBtn, "cell 0 0,grow");
-		
-	}
-	
 
-	private void SelectImg(){
-		JFileChooser fileChooser=new JFileChooser();
-		fileChooser.setFileFilter(new FileNameExtensionFilter("画像ファイル", "png","jpg","bmp","Jpeg","GIF"));
-		if(fileChooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION){
-			File file = fileChooser.getSelectedFile();
-			matImg = Imgcodecs.imread(file.getPath());
-			Imgproc.resize(matImg, matImg, setSize);
-			imgLab.setSize((int)setSize.width, (int)setSize.height);
-			detectManhole = new DetectManhole(matImg,2);
-			Imgcodecs.imwrite(resultPath, detectManhole.origin);
-			img = new ImageIcon(resultPath);
-			imgLab.setIcon(img);
-		}
+		btnOrigin.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				outputImg(-1);
+				imgLab.setIcon(img);
+			}
+		});
+		
+		edgeBtn.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				outputImg(-1);
+				outputImg(0);
+				imgLab.setIcon(img);
+			}
+		});
+
+		ellipseBtn.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				outputImg(-1);
+				outputImg(1);
+				imgLab.setIcon(img);
+			}
+		});
+
+		manholeBtn.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				outputImg(-1);
+				outputImg(2);
+				imgLab.setIcon(img);
+			}
+		});
 	}
 }
